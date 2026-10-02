@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://coreinventory-backend.onrender.com/api';
+let rawUrl = import.meta.env.VITE_API_URL || 'https://coreinventory-ims-h8bc.onrender.com/api';
+rawUrl = rawUrl.replace(/\/+$/, '');
+const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
