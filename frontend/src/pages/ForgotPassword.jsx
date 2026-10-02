@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { HiOutlineMail, HiOutlineCube, HiOutlineKey, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { validateEmail, validatePassword, passwordRequirementsText } from '../utils/validation';
@@ -22,7 +22,7 @@ const ForgotPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      const res = await api.post('/auth/forgot-password', { email });
       if (res.data.devSkip) {
         toast.error('Email failed to send, but OTP was generated! Check your backend server console for the code.', { duration: 6000 });
       } else {
@@ -40,7 +40,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/verify-reset-otp', { email, otp });
+      const res = await api.post('/auth/verify-reset-otp', { email, otp });
       toast.success(res.data.message || 'OTP verified successfully!');
       setStep(3);
     } catch (error) {
@@ -58,7 +58,7 @@ const ForgotPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/reset-password', { email, otp, newPassword });
+      const res = await api.post('/auth/reset-password', { email, otp, newPassword });
       toast.success(res.data.message || 'Password reset successfully!');
       navigate('/login');
     } catch (error) {
