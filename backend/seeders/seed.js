@@ -12,9 +12,10 @@ const seed = async () => {
 
     // Create users
     const hashedPassword = await bcrypt.hash('password123', 10);
-    const admin = await User.create({ name: 'Admin User', email: 'admin@coreinventory.com', password: hashedPassword, role: 'admin' });
-    await User.create({ name: 'John Manager', email: 'john@coreinventory.com', password: hashedPassword, role: 'manager' });
-    await User.create({ name: 'Jane Staff', email: 'jane@coreinventory.com', password: hashedPassword, role: 'staff' });
+    const admin = await User.create({ name: 'Admin User', email: 'admin@coreinventory.com', password: hashedPassword, role: 'admin', isVerified: true });
+    await User.create({ name: 'Admin Koshnetra', email: 'admin@koshnetra.com', password: hashedPassword, role: 'admin', isVerified: true });
+    await User.create({ name: 'John Manager', email: 'john@coreinventory.com', password: hashedPassword, role: 'manager', isVerified: true });
+    await User.create({ name: 'Jane Staff', email: 'jane@coreinventory.com', password: hashedPassword, role: 'staff', isVerified: true });
     console.log('✅ Users seeded.');
 
     // Create warehouses

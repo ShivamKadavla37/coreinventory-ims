@@ -1,0 +1,15 @@
+{
+  "name": "coreinventory-ims",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CoreInventory IMS - Fullstack Application",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend run dev\"",
+    "start": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend run dev\"",
+    "backend": "npm --prefix backend start",
+    "frontend": "npm --prefix frontend run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

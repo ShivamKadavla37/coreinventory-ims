@@ -15,7 +15,6 @@ import StockHistory from './pages/StockHistory';
 import Warehouses from './pages/Warehouses';
 import LowStock from './pages/LowStock';
 import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 
 const AppRoutes = () => {
@@ -34,7 +33,6 @@ const AppRoutes = () => {
       <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <Signup />} />
       <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/" /> : <ForgotPassword />} />
-      <Route path="/reset-password/:token" element={isAuthenticated ? <Navigate to="/" /> : <ResetPassword />} />
       <Route
         path="/"
         element={

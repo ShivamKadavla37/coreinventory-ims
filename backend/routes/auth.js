@@ -96,7 +96,16 @@ router.post('/signup', async (req, res) => {
       });
     } catch (emailError) {
       console.error('Email send error:', emailError);
-      res.status(500).json({ message: 'Failed to send OTP email.' });
+      // For development, we allow them to proceed if the OTP is at least in the logs
+      if (process.env.NODE_ENV !== 'production') {
+        return res.status(201).json({
+          message: 'OTP generated but email failed to send. Check server console logs for the code.',
+          requireOtp: true,
+          email: user.email,
+          devSkip: true
+        });
+      }
+      res.status(500).json({ message: 'Failed to send OTP email. Please check SMTP configuration.' });
     }
   } catch (error) {
     console.error('Signup error:', error);
@@ -288,13 +297,21 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordOtp = otp;
     user.resetPasswordExpires = otpExpires;
     await user.save();
+    console.log(`Password reset OTP for ${email}: ${otp}`);
 
     try {
       await sendPasswordResetOtpEmail(user.email, otp);
       res.json({ message: 'OTP sent to your email.' });
     } catch (emailError) {
       console.error('Email send error:', emailError);
-      res.status(500).json({ message: 'Failed to send OTP email.' });
+      // For development, we allow them to proceed if the OTP is at least in the logs
+      if (process.env.NODE_ENV !== 'production') {
+        return res.json({ 
+          message: 'OTP generated but email failed to send. Check server console logs for the code.',
+          devSkip: true
+        });
+      }
+      res.status(500).json({ message: 'Failed to send OTP email. Please check SMTP configuration.' });
     }
   } catch (error) {
     console.error('Forgot password error:', error);
@@ -320,23 +337,7 @@ router.post('/verify-reset-otp', async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired OTP.' });
     }
 
-    // Generate secure token for the link since OTP was proven
-    const token = crypto.randomBytes(32).toString('hex');
-    const tokenExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-
-    user.resetPasswordOtp = token;
-    user.resetPasswordExpires = tokenExpires;
-    await user.save();
-
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
-
-    try {
-      await sendResetLinkEmail(user.email, resetLink);
-      res.json({ message: 'Password reset link has been successfully sent to your email.' });
-    } catch (emailError) {
-      console.error('Email send error:', emailError);
-      res.status(500).json({ message: 'Failed to send reset email.' });
-    }
+    res.json({ message: 'OTP verified successfully. You can now reset your password.' });
   } catch (error) {
     console.error('Verify reset OTP error:', error);
     res.status(500).json({ message: 'Server error during verification.' });
@@ -346,15 +347,16 @@ router.post('/verify-reset-otp', async (req, res) => {
 // POST /api/auth/reset-password
 router.post('/reset-password', async (req, res) => {
   try {
-    const { token, newPassword } = req.body;
+    const { email, otp, newPassword } = req.body;
     
-    if (!token || !newPassword) {
-      return res.status(400).json({ message: 'Token and new password are required.' });
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: 'Email, OTP and new password are required.' });
     }
 
     const user = await User.findOne({ 
       where: { 
-        resetPasswordOtp: token,
+        email,
+        resetPasswordOtp: otp,
         resetPasswordExpires: {
           [Op.gt]: new Date()
         }
@@ -362,7 +364,7 @@ router.post('/reset-password', async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired password reset link.' });
+      return res.status(400).json({ message: 'Invalid or expired OTP.' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
