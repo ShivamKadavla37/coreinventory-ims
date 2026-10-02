@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const { sequelize } = require('./models');
+const { sequelize, User } = require('./models');
+const seed = require('./seeders/seed');
 const auth = require('./middleware/auth');
 
 // Import routes
@@ -56,6 +57,13 @@ const startServer = async () => {
 
     await sequelize.sync({ alter: true });
     console.log('✅ Database synchronized.');
+
+    // Auto-seed initial demo data if database has no users
+    const userCount = await User.count();
+    if (userCount === 0) {
+      console.log('🌱 No users found in database. Auto-seeding demo users and initial data...');
+      await seed();
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);

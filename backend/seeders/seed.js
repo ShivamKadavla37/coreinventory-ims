@@ -114,11 +114,19 @@ const seed = async () => {
     console.log('  Manager: john@coreinventory.com / password123');
     console.log('  Staff: jane@coreinventory.com / password123');
 
-    process.exit(0);
+    if (require.main === module) {
+      process.exit(0);
+    }
   } catch (error) {
     console.error('❌ Seeding failed:', error);
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    }
   }
 };
 
-seed();
+if (require.main === module) {
+  seed();
+}
+
+module.exports = seed;
