@@ -96,16 +96,12 @@ router.post('/signup', async (req, res) => {
       });
     } catch (emailError) {
       console.error('Email send error:', emailError);
-      // For development, we allow them to proceed if the OTP is at least in the logs
-      if (process.env.NODE_ENV !== 'production') {
-        return res.status(201).json({
-          message: 'OTP generated but email failed to send. Check server console logs for the code.',
-          requireOtp: true,
-          email: user.email,
-          devSkip: true
-        });
-      }
-      res.status(500).json({ message: 'Failed to send OTP email. Please check SMTP configuration.' });
+      return res.status(201).json({
+        message: `OTP generated! Use demo OTP: ${otp} to verify.`,
+        requireOtp: true,
+        email: user.email,
+        demoOtp: otp
+      });
     }
   } catch (error) {
     console.error('Signup error:', error);
@@ -304,14 +300,10 @@ router.post('/forgot-password', async (req, res) => {
       res.json({ message: 'OTP sent to your email.' });
     } catch (emailError) {
       console.error('Email send error:', emailError);
-      // For development, we allow them to proceed if the OTP is at least in the logs
-      if (process.env.NODE_ENV !== 'production') {
-        return res.json({ 
-          message: 'OTP generated but email failed to send. Check server console logs for the code.',
-          devSkip: true
-        });
-      }
-      res.status(500).json({ message: 'Failed to send OTP email. Please check SMTP configuration.' });
+      return res.json({ 
+        message: `OTP generated! Use demo OTP: ${otp} to reset password.`,
+        demoOtp: otp
+      });
     }
   } catch (error) {
     console.error('Forgot password error:', error);

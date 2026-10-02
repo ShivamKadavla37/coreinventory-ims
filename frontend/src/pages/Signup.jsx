@@ -33,7 +33,10 @@ const Signup = () => {
     try {
       const res = await signup(name, email, password);
       if (res.requireOtp) {
-        toast.success(res.message);
+        toast.success(res.message, { duration: 8000 });
+        if (res.demoOtp) {
+          setOtp(res.demoOtp);
+        }
         setShowOtp(true);
       } else {
         toast.success('Account created successfully!');
